@@ -6,6 +6,7 @@ public class ConvertNumberToString {
 	
 	private static final String [] convertToString = {"0", "1", "2", "3","4","5","6","7","8","9"};
 	static Deque<String> digits = new ArrayDeque<>();
+	
 	public static String numberToString(int n, int base){
 		if(n < base) 
 			return convertToString[n];
