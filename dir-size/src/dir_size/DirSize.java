@@ -6,14 +6,17 @@ import java.util.stream.Stream;
 import java.util.ArrayList;
 
 public class DirSize {
-	private static Path rootDir = Paths.get("C:\\Program Files");
+	private Path rootDir = Paths.get("/home");
 	
 	public static void main(String[] args) {
 		//getSubDirsPassiveIterator(rootDir);
 		//System.out.println(getSubDirs(rootDir));
 
-		DirSize dirSize = new DirSize();
-		SubDir subDir = dirSize.getElemsOfParentDir(rootDir);
+		if (args.length <= 0 || args[0] == null) 
+			System.exit(1);
+		
+		DirSize dirSize = new DirSize(args[0]);
+		SubDir subDir = dirSize.getElemsOfParentDir(dirSize.rootDir);
 		long rootSize = 0;
 		for(Path dir : subDir.dirs) {
 			long size = dirSize.calcSize(dir);
@@ -23,12 +26,18 @@ public class DirSize {
 		}
 		for(Path file : subDir.files) {
 			try {
-				rootSize+=Files.size(file);
+				long currFileSize = Files.size(file);
+				System.out.println(currFileSize + " - " + file.toString());
+				rootSize+=currFileSize;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		System.out.println(rootSize + " - .");
+	}
+	
+	public DirSize(String path) {
+		rootDir = Paths.get(path);
 	}
 	
 	class SubDir {
@@ -52,14 +61,21 @@ public class DirSize {
 	}
 	
 	public long calcSize(Path p) {
+		//TODO Calculates dir size as a sum of file sizes, 
+		//     but does not add the size of dir itself, 
+		//     which seems to be 4096 bytes in Linux.
 		SubDir subDir = getElemsOfParentDir(p);
 		long size = 0;
 		for(Path dir : subDir.dirs) {
-			size += calcSize(dir);
+			long currDirSize = calcSize(dir);
+			System.out.println(currDirSize + " - " + dir.toString());
+			size += currDirSize;
 		}
 		for(Path file : subDir.files) {
 			try {
-				size += Files.size(file);
+				long currFileSize = Files.size(file);
+				System.out.println(currFileSize + " - " + file.toString());
+				size += currFileSize;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -68,7 +84,7 @@ public class DirSize {
 		return size;
 	}
 	
-	public static Long getSubDirs(Path p) {
+	/*public static Long getSubDirs(Path p) {
 		List<Path> dirs = new ArrayList<>();
 		long currentDirSize = 0;
 		
@@ -93,9 +109,9 @@ public class DirSize {
 				}
 		}
 		return currentDirSize;
-	}
+	}*/
 	
-	public static void getSubDirsPassiveIterator(Path p) {
+/*	public static void getSubDirsPassiveIterator(Path p) {
 		if(Files.isDirectory(p, LinkOption.NOFOLLOW_LINKS)) {
 			try {
 				Files.list(p).forEach(d -> {
@@ -110,5 +126,5 @@ public class DirSize {
 				e.printStackTrace();
 			} 
 		}
-	}
+	}*/
 }
