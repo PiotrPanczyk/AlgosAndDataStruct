@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class DirSize {
 	private Path rootDir = Paths.get("/home");
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException{
 		//getSubDirsPassiveIterator(rootDir);
 		//System.out.println(getSubDirs(rootDir));
 
@@ -18,22 +18,20 @@ public class DirSize {
 		DirSize dirSize = new DirSize(args[0]);
 		SubDir subDir = dirSize.getElemsOfParentDir(dirSize.rootDir);
 		long rootSize = 0;
+		rootSize = Files.size(dirSize.rootDir);
+
 		for(Path dir : subDir.dirs) {
-			long size = dirSize.calcSize(dir);
+			long size = Files.size(dir) + dirSize.calcSize(dir);
 			rootSize += size;
 			System.out.println(size + " - " + dir.toString());
 			//TODO sort by size, format numbers, format output text with even spacing.
 		}
 		for(Path file : subDir.files) {
-			try {
-				long currFileSize = Files.size(file);
-				System.out.println(currFileSize + " - " + file.toString());
-				rootSize+=currFileSize;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			long currFileSize = Files.size(file);
+			System.out.println(currFileSize + " - " + file.toString());
+			rootSize+=currFileSize;
 		}
-		System.out.println(rootSize + " - .");
+		System.out.println(rootSize + " - ./");
 	}
 	
 	public DirSize(String path) {
@@ -60,14 +58,12 @@ public class DirSize {
 		return subDir;
 	}
 	
-	public long calcSize(Path p) {
-		//TODO Calculates dir size as a sum of file sizes, 
-		//     but does not add the size of dir itself, 
-		//     which seems to be 4096 bytes in Linux.
+	public long calcSize(Path p) throws IOException {
 		SubDir subDir = getElemsOfParentDir(p);
 		long size = 0;
+		long currDirSize = 0;
 		for(Path dir : subDir.dirs) {
-			long currDirSize = calcSize(dir);
+			currDirSize = Files.size(dir) + calcSize(dir);
 			System.out.println(currDirSize + " - " + dir.toString());
 			size += currDirSize;
 		}
