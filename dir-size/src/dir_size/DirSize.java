@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class DirSize {
 	private Path rootDir = Paths.get("/home");
+	private static boolean printAll = false;
 	
 	public static void main(String[] args) throws IOException{
 		//getSubDirsPassiveIterator(rootDir);
@@ -14,6 +15,11 @@ public class DirSize {
 
 		if (args.length <= 0 || args[0] == null) 
 			System.exit(1);
+
+		//Cmd line args - TODO needs done properly
+		for (String arg : args) {
+			if(arg.equals("-a")) printAll = true;
+		}
 		
 		DirSize dirSize = new DirSize(args[0]);
 		SubDir subDir = dirSize.getElemsOfParentDir(dirSize.rootDir);
@@ -64,13 +70,15 @@ public class DirSize {
 		long currDirSize = 0;
 		for(Path dir : subDir.dirs) {
 			currDirSize = Files.size(dir) + calcSize(dir);
-			System.out.println(currDirSize + " - " + dir.toString());
+			if(printAll)
+				System.out.println(currDirSize + " - " + dir.toString());
 			size += currDirSize;
 		}
 		for(Path file : subDir.files) {
 			try {
 				long currFileSize = Files.size(file);
-				System.out.println(currFileSize + " - " + file.toString());
+				if(printAll)
+					System.out.println(currFileSize + " - " + file.toString());
 				size += currFileSize;
 			} catch (IOException e) {
 				e.printStackTrace();
